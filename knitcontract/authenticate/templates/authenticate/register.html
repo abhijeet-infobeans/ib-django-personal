@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block page_title %}KnitContract - Registration{% endblock page_title %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-6 d-flex flex-column align-items-center justify-content-center">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="pagetitle">
+                            <h1>Register</h1>
+                        </div>
+                        <p class="text-center small">Enter your personal details to create account</p>
+                      <form class="row g-3 needs-validation" method="post">
+                        {% csrf_token %}
+                        <div class="col-12">
+                            <label for="{{ form.username.name }}" class="form-label">{{ form.username.label }}</label>
+                            {{ form.username }}
+                            {{ form.username.errors }}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.email.name }}" class="form-label">{{ form.email.label }}</label>
+                            {{ form.email }}
+                            {{ form.email.errors }}
+                        </div>            
+                        
+            
+            
+                        <div class="col-12">
+                          <label for="yourPassword" class="form-label">Password</label>
+                          <input type="password" name="password" class="form-control" id="yourPassword" required>
+                          <div class="invalid-feedback">Please enter your password!</div>
+                        </div>
+            
+                        
+                        <div class="col-12">
+                          <button class="btn btn-primary w-100" type="submit">Create Account</button>
+                        </div>
+                        <div class="col-12">
+                          <p class="small mb-0">Already have an account? <a href="pages-login.html">Log in</a></p>
+                        </div>
+                      </form>
+            
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

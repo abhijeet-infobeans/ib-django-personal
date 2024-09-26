@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>
+    {% block page_title %}Contract Management Sytem{% endblock page_title %}        
+  </title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Bootstrap CSS Files -->
+  <link href="{% static 'css/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/bootstrap/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'css/bootstrap/boxicons/boxicons.min.css' %}" rel="stylesheet">
+  
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+</head>
+<body>
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        {% if user.is_authenticated %}
+          <div class="d-flex align-items-center justify-content-between"></div>
+            <a href="#" class="logo d-flex align-items-center">
+              <img src="{% static 'images/knitcontract_logo-cropped.png' %}" alt="KnitContract">
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+          </div><!-- End Logo -->
+          {% include 'top_nav.html' %}    
+        {% else %}
+          <div class="d-flex align-items-center justify-content-between"></div>
+            <a href="#" class="logo d-flex align-items-center">
+              <img src="{% static 'images/knitcontract_logo-cropped.png' %}" alt="KnitContract">
+            </a>
+          </div><!-- End Logo -->
+        {% endif %}
+          
+
+      </header><!-- End Header -->
+    {% if user.is_authenticated %}
+      {% include 'sidebar.html' %}
+    {% endif %}
+    <main {% if user.is_authenticated %} id="main" {% else %} id="mainNL" {% endif %} class="main">
+        {% block content %}{% endblock content %}
+    </main>
+    <!-- ======= Footer ======= -->
+     {% include 'footer.html' %}
+    <!-- End Footer -->
+    <script src="{% static 'js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}" src="assets/js/main.js"></script>
+</body>
+</html>
