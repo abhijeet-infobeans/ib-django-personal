@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block page_title %}KnitContract - Login{% endblock page_title %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-6 d-flex flex-column align-items-center justify-content-center">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="pagetitle">
+                            <h1>Login</h1>
+                        </div>
+                        <p class="text-center small">Please enter your credentials</p>
+                      <form class="row g-3 needs-validation" method="post">
+                        {% csrf_token %}
+                        <div class="col-12">
+                            <label for="{{ form.username.name }}" class="form-label">{{ form.username.label }}</label>
+                            {{ form.username }}
+                            {{ form.username.errors }}
+                        </div>         
+                        <div class="col-12">
+                            <label for="{{ form.password.name }}" class="form-label">{{ form.password.label }}</label>
+                            {{ form.password }}
+                            {{ form.password.errors }}
+                        </div> 
+            
+                        
+                        <div class="col-12">
+                          <button class="btn btn-primary w-100" type="submit">Sign In</button>
+                        </div>
+                        <div class="col-12">
+                          <p class="small mb-0">Don't have an account? <a href="{% url 'register' %}">Create Account</a></p>
+                        </div>
+                      </form>
+            
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
