@@ -4,8 +4,22 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError  
 
 class CustomRegistrationForm(UserCreationForm):
+    first_name = forms.CharField(
+        label='First Name', 
+        min_length=2, 
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    last_name = forms.CharField(
+        label='Last Name', 
+        min_length=2, 
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
     username = forms.CharField(
-        label='Your Username', 
+        label='Username', 
         min_length=5, 
         max_length=100,
         required=True,
@@ -32,7 +46,7 @@ class CustomRegistrationForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
         
     def username_clean(self):  
         username = self.cleaned_data['username'].lower()  
@@ -59,25 +73,13 @@ class CustomRegistrationForm(UserCreationForm):
     
     def save(self, commit=True):
         user = super(CustomRegistrationForm, self).save(commit=False)
-        #user = super().save(commit=False)
-        #user.set_password(self.cleaned_data['password'])
         if commit:
             user.save()
         return user
-    
-    '''
-    def save(self, commit = True):
-        user = User.objects.create_user(  
-            self.cleaned_data['username'],  
-            self.cleaned_data['email'],  
-            self.cleaned_data['password1']  
-        )  
-        return user 
-    '''
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        label='Your Username', 
+        label='Username', 
         min_length=5, 
         max_length=100,
         required=True,

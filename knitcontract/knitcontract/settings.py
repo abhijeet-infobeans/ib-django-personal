@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'contract',
-    'authenticate'
+    'authenticate',
+    'company'
 ]
 
 MIDDLEWARE = [

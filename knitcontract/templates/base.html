@@ -25,6 +25,9 @@
   <link href="{% static 'css/bootstrap/bootstrap-icons.css' %}" rel="stylesheet">
   <link href="{% static 'css/bootstrap/boxicons/boxicons.min.css' %}" rel="stylesheet">
   
+  {% block page_css %}
+    
+  {% endblock page_css %}
 
   <!-- Template Main CSS File -->
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
@@ -60,6 +63,10 @@
      {% include 'footer.html' %}
     <!-- End Footer -->
     <script src="{% static 'js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+    
+    {% block page_js %}
+      
+    {% endblock page_js %}
     <script src="{% static 'js/main.js' %}" src="assets/js/main.js"></script>
 </body>
 </html>

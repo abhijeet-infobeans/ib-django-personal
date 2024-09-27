@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}KnitContract - Companies{% endblock page_title %}
+
+{% block page_css %}
+    <link href="{% static 'css/bootstrap/simple-datatables/style.css' %}" rel="stylesheet">
+{% endblock  %}
+    
+
+{% block content %}
+    <div class="pagetitle">
+        <h1>All Companies</h1>
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <p></p>
+
+              <!-- Table with stripped rows -->
+              <table class="table datatable">
+                <thead>
+                  <tr>
+                    <th>Company Name</th>
+                    <th>Company Address</th>
+                    <th>Created By</th>
+                    <th data-type="date" data-format="YYYY/DD/MM">Created Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for company in companies %}
+                    <tr>
+                      <td>{{ company.company_name }}</td>
+                      <td>{{ company.company_address }}</td>
+                      <td>{{ company.user.get_full_name }}</td>
+                      <td>{{ company.created_at }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div>
+    </div>
+{% endblock content %}
+
+{% block page_js %}
+    <script src="{% static 'js/tinymce/tinymce.min.js' %}"></script>   
+    <script src="{% static 'js/bootstrap/simple-datatables/simple-datatables.js' %}"></script>
+{% endblock page_js %}

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .forms import CustomRegistrationForm, LoginForm
+from django.contrib.auth.models import Group
 
 # Create your views here.
 
@@ -12,6 +13,8 @@ def register(request):
         if form.is_valid():
             try:
                 user = form.save()
+                guest_group = Group.objects.get(name='Guest')
+                user.groups.add(guest_group)
                 return redirect('login')
             except Exception as e:
                 pass
