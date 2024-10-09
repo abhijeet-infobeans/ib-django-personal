@@ -9,21 +9,79 @@
         </a>
     </li><!-- End Dashboard Nav -->
     <li class="nav-item"></li>
-        <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-buildings"></i><span>Company</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link collapsed" data-bs-target="#org-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-buildings"></i><span>Organization</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+        <ul id="org-nav" 
+        {% if 'organization' in request.path %}
+          class="nav-content collapse show"
+        {% else %}
+          class="nav-content collapse "
+        {% endif %}
+            data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{% url 'company-list' %}">
-              <i class="bi bi-circle"></i><span>Companies</span>
+            <a {% if request.resolver_match.url_name == 'organization-list' %}class="active"{% endif %} href="{% url 'organization-list' %}">
+              <i class="bi bi-circle"></i><span>Organizations</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'company-add' %}">
-              <i class="bi bi-circle"></i><span>Add Company</span>
+            <a 
+              {% if request.resolver_match.url_name == 'organization-add' %}class="active"{% endif %}
+               href="{% url 'organization-add' %}">
+              <i class="bi bi-circle"></i><span>Add organization</span>
             </a>
           </li>
         </ul>
+    </li>
+    <li class="nav-item"></li>
+      <a class="nav-link collapsed" data-bs-target="#msa-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-file-earmark-ruled"></i><span>Master Agreement</span><i class="bi bi-chevron-down ms-auto"></i>
+      </a>
+      <ul id="msa-nav" 
+      {% if 'msa' in request.path %}
+        class="nav-content collapse show"
+      {% else %}
+        class="nav-content collapse "
+      {% endif %}
+          data-bs-parent="#sidebar-nav">
+        <li>
+          <a {% if request.resolver_match.url_name == 'msa-list' %}class="active"{% endif %} href="{% url 'msa-list' %}">
+            <i class="bi bi-circle"></i><span>MSA</span>
+          </a>
+        </li>
+        <li>
+          <a 
+            {% if request.resolver_match.url_name == 'msa-add' %}class="active"{% endif %}
+              href="{% url 'msa-add' %}">
+            <i class="bi bi-circle"></i><span>Add MSA</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+    <li class="nav-item"></li>
+      <a class="nav-link collapsed" data-bs-target="#sow-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-backpack4"></i><span>Work Satatement</span><i class="bi bi-chevron-down ms-auto"></i>
+      </a>
+      <ul id="sow-nav"
+      {% if 'sow' in request.path %}
+        class="nav-content collapse show"
+      {% else %}
+        class="nav-content collapse "
+      {% endif %}
+          data-bs-parent="#sidebar-nav">
+        <li>
+          <a {% if request.resolver_match.url_name == 'sow-list' %}class="active"{% endif %} href="{% url 'sow-list' %}">
+            <i class="bi bi-circle"></i><span>SOW</span>
+          </a>
+        </li>
+        <li>
+          <a 
+            {% if request.resolver_match.url_name == 'sow-add' %}class="active"{% endif %}
+              href="{% url 'sow-add' %}">
+            <i class="bi bi-circle"></i><span>Add SOW</span>
+          </a>
+        </li>
+      </ul>
     </li>
 
     <li class="nav-item">

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block page_title %}KnitContract - Add Organization{% endblock page_title %}
+    
+
+{% block content %}
+    <div class="pagetitle">
+        <h1>Add Organization</h1>
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <p></p>
+              <form id="addOrgFrm" action="{% url 'api-organization-add' %}" method="POST" >
+                {% csrf_token %}
+                <input type="hidden" name="user" value="{{ request.user.id }}" />
+                <div class="col-6">
+                    <label for="{{ form.organization_name.name }}" class="form-label">{{ form.organization_name.label }}</label>
+                    {{ form.organization_name }}
+                    <div 
+                    {% if form.organization_name.errors  %}
+                      class="invalid-feedback show"
+                    {% else %}
+                      class="invalid-feedback"
+                    >
+                    {% endif %}
+                      >
+                      {{ form.organization_name.errors }}
+                    </div>
+                  </div>
+                  <div class="col-6 mt-3">
+                    <label for="{{ form.organization_address.name }}" class="form-label">{{ form.organization_address.label }}</label>
+                    {{ form.organization_address }}
+                    <div 
+                    {% if form.organization_address.errors  %}
+                      class="invalid-feedback show"
+                    {% else %}
+                      class="invalid-feedback"
+                    >
+                    {% endif %}
+                      >
+                      {{ form.organization_address.errors }}
+                    </div>
+                  </div>
+                  <div class="col-6 mt-3">
+                    <label for="{{ form.organization_type.name }}" class="form-label">{{ form.organization_type.label }}</label>
+                    {{ form.organization_type }}
+                    <div 
+                    {% if form.organization_type.errors  %}
+                      class="invalid-feedback show"
+                    {% else %}
+                      class="invalid-feedback"
+                    >
+                    {% endif %}
+                      >
+                      {{ form.organization_type.errors }}
+                    </div>
+                  </div>
+                  <div class="col-12 mt-4">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                  </div>
+                </form>
+            </div>
+          </div>
+    </div>
+{% endblock content %}
+{% block page_js %}
+  <script>
+    $("#addOrgFrm").submit(function(e) {
+      e.preventDefault();
+      var form = $(this);
+      var actionUrl = form.attr('action');
+      var successURL = "{% url 'organization-list' %}";
+      $.ajax({
+          type: "POST",
+          url: actionUrl,
+          data: form.serialize(), // serializes the form's elements.
+          success: function(data)
+          {
+            window.location.replace(successURL)
+          }
+      });
+      
+    });
+  </script>      
+{% endblock page_js %}

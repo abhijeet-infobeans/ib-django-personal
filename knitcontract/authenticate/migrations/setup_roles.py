@@ -11,6 +11,7 @@ def setup_roles(apps, schema_editor):
     project_manager_group, created = Group.objects.get_or_create(name='Project Managers')
     project_lead_group, created = Group.objects.get_or_create(name='Project Leads')
     guest_group, created = Group.objects.get_or_create(name='Guest')
+    client_group, created = Group.objects.get_or_create(name='Client')
 
 
 class Migration(migrations.Migration):

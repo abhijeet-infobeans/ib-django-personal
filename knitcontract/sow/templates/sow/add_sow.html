@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block page_title %}KnitContract - Add SOW{% endblock page_title %}
+    
+
+{% block content %}
+    <div class="pagetitle">
+        <h1>Add SOW</h1>
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <div style="display: none;" id="form-submit-result" class="alert alert-dismissible" role="alert">
+                <span id="form-errors"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+                <form id="addSOWFrm" action="{% url 'api-sow-add' %}" method="POST" enctype="multipart/form-data"  >
+                    {% csrf_token %}
+                    <input type="hidden" name="created_by" value="{{ request.user.id }}" />
+                    <div class="row">
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.project_name.name }}" class="form-label">{{ form.project_name.label }}</label>
+                            {{ form.project_name }}
+                            <div 
+                            {% if form.project_name.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.project_name.errors }}
+                            </div>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.msa.name }}" class="form-label">{{ form.msa.label }}</label>
+                            {{ form.msa }}
+                            <div 
+                            {% if form.msa.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.msa.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.client.name }}" class="form-label">{{ form.client.label }}</label>
+                            {{ form.client }}
+                            <div 
+                            {% if form.client.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.client.errors }}
+                            </div>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.sow_type.name }}" class="form-label">{{ form.sow_type.label }}</label>
+                            {{ form.sow_type }}
+                            <div 
+                            {% if form.sow_type.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.sow_type.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.status.name }}" class="form-label">{{ form.status.label }}</label>
+                            {{ form.status }}
+                            <div 
+                            {% if form.status.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.status.errors }}
+                            </div>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.duration.name }}" class="form-label">{{ form.duration.label }}</label>
+                            {{ form.duration }}
+                            <div 
+                            {% if form.duration.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.duration.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mt-4 mb-1">
+                            <label for="{{ form.start_date.name }}" class="form-label">{{ form.start_date.label }}</label>
+                            {{ form.start_date }}
+                            <div 
+                            {% if form.start_date.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.start_date.errors }}
+                            </div>
+                        </div>
+
+                        <div class="col-6 mt-4 mb-1">
+                            <label for="{{ form.end_date.name }}" class="form-label">{{ form.end_date.label }}</label>
+                            {{ form.end_date }}
+                            <div 
+                            {% if form.end_date.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.end_date.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.project_cost.name }}" class="form-label">{{ form.project_cost.label }}</label>
+                            {{ form.project_cost }}
+                            <div 
+                            {% if form.project_cost.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.project_cost.errors }}
+                            </div>
+                        </div>
+
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.currency.name }}" class="form-label">{{ form.currency.label }}</label>
+                            {{ form.currency }}
+                            <div 
+                            {% if form.currency.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.currency.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.invoice_frequency.name }}" class="form-label">{{ form.invoice_frequency.label }}</label>
+                            {{ form.invoice_frequency }}
+                            <div 
+                            {% if form.invoice_frequency.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.invoice_frequency.errors }}
+                            </div>
+                        </div>
+
+                        <div class="col-6 mt-5">
+                            <label for="{{ form.next_due_renewal.name }}" class="form-label">{{ form.next_due_renewal.label }}</label>
+                            {{ form.next_due_renewal }}
+                            <div 
+                            {% if form.next_due_renewal.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.next_due_renewal.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mt-3">
+                            <label for="{{ form.sow_doc_path.name }}" class="form-label">{{ form.sow_doc_path.label }}</label>
+                            <small>{{ form.sow_doc_path.help_text }}</small>
+                            <input class="form-control" type="file" name="{{ form.sow_doc_path.name }}" >
+                            <div 
+                            {% if form.sow_doc_path.errors  %}
+                                class="invalid-feedback show"
+                            {% else %}
+                                class="invalid-feedback"
+                            >
+                            {% endif %}
+                                >
+                                {{ form.sow_doc_path.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button class="btn btn-primary" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+          </div>
+    </div>
+{% endblock content %}
+{% block page_js %}
+<script>
+    $("#addSOWFrm").submit(function(e) {
+      e.preventDefault();
+      var formData = new FormData(this);
+      
+      var successURL = "{% url 'sow-list' %}";
+      var addSowURL = "{% url 'api-sow-add' %}";
+      $.ajax({
+          type: "POST",
+          url: addSowURL,
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function(data)
+          {
+            window.location.replace(successURL)
+          },
+          error: function(error){
+            $("#form-submit-result").show().delay(5000).fadeOut();
+            $("#form-submit-result").addClass('alert-danger')
+            parsedResponse = JSON.parse(error)
+            $("#form-errors").html(parsedResponse)
+          }
+      });
+    });
+  </script>      
+{% endblock page_js %}

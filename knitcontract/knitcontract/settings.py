@@ -40,7 +40,15 @@ INSTALLED_APPS = [
     
     'contract',
     'authenticate',
-    'company'
+    'organization',
+    'msa',
+    'sow',
+    'auditlog',
+    
+    'organizationREST',
+    'msaREST',
+    'sowREST',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -135,3 +143,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
+
+MEDIA_ROOT = BASE_DIR / 'uploads'
+MEDIA_URL = '/user-media/'

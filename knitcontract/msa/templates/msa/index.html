@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block page_title %}KnitContract - List MSA{% endblock page_title %}
+    
+
+{% block content %}
+    <div class="pagetitle">
+        <h1>All MSA</h1>
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <p id="errors"></p>
+              <table id="msa-data" class="table table-bordered table-sm">
+                
+              </table>
+              <div id="pagination"></div>
+            </div>
+          </div>
+    </div>
+{% endblock content %}
+{% block page_js %}
+<script>
+  function getPageData(page_num=1){
+    if (page_num > 1) {
+      var listMsaURL = "{% url 'api-msa-list' %}"+"?page="+page_num;
+    }else{
+      var listMsaURL = "{% url 'api-msa-list' %}";
+    }
+    
+    $.ajax({
+        type: "GET",
+        url: listMsaURL,
+        success: function(data)
+        {
+          console.log(data)
+          if (data.count > 0) {
+            $('#msa-data').show()
+            $('#errors').hide()
+            var table_html = '';
+            table_html += '<thead><tr>\
+              <th scope="col">#</th>\
+              <th scope="col">No</th>\
+              <th scope="col">Client</th>\
+              <th scope="col">Signing Authority</th>\
+              <th scope="col">Signing Date</th>\
+              <th scope="col">IB Signing Authority</th>\
+              <th scope="col">Status</th>\
+              <th scope="col">Created By</th>\
+              <th scope="col">Doc</th>\
+            </tr></thead>'
+            table_html += '<tbody>'
+            for (let itm = 0; itm < data.results.length; itm++) {
+              var edit_url_raw = "{% url 'msa-edit' 1 %}";
+              var edit_url = edit_url_raw.replace(/[^\/]*$/, data.results[itm].id)
+              
+              table_html += '<tr>';
+              table_html += '<td>'+ data.results[itm].id +'</td>';
+              table_html += '<td>'+ data.results[itm].msa_unq_no +'</td>';
+              table_html += '<td>'+ data.results[itm].client +'</td>';
+              table_html += '<td>'+ data.results[itm].signing_authority +'</td>';
+              table_html += '<td>'+ data.results[itm].signing_date +'</td>';
+              table_html += '<td>'+ data.results[itm].ib_signing_authority +'</td>';
+              table_html += '<td>'+ data.results[itm].status +'</td>';
+              table_html += '<td>'+ data.results[itm].created_by +'</td>';
+              table_html += '<td>\
+                <a target="_blank" href="'+ data.results[itm].msa_doc_path +'" >\
+                  <i class="bi bi-file-earmark-pdf"></i></a>\
+                  <a href="'+ edit_url +'" ><i class="bi bi-pencil-square"></i></a>\
+                </td>';
+              table_html += '</tr>';
+            }
+            table_html += '</tbody>';
+            $('#msa-data').html(table_html)
+            var previous_page = 1
+            var next_page = 1
+            if (data.previous != null) {
+              const pArr = data.previous.split("?page=")
+              previous_page = pArr[1]
+            }
+            if (data.next != null) {
+              const nArr = data.next.split("?page=")
+              next_page = nArr[1]
+            }
+            
+            var previous_page = 
+            pagination_html = '<nav aria-label="Page navigation example">\
+              <ul class="pagination">\
+                <li class="page-item">\
+                  <a class="page-link" href="javascript:void(0);" xphref="'+ previous_page +'" aria-label="Previous">\
+                    <span aria-hidden="true">&laquo;</span>\
+                  </a>\
+                </li>';
+                total_pages = Math.ceil(data.count/2);
+                for (let itp = 1; itp <= total_pages; itp++) {
+                  pagination_html += '<li class="page-item"><a xphref="'+ itp +'" class="page-link" href="javascript:void(0);">'+ itp +'</a></li>';
+                }
+                pagination_html += '<li class="page-item">\
+                  <a class="page-link" href="javascript:void(0);" xphref="'+ next_page +'" aria-label="Next">\
+                    <span aria-hidden="true">&raquo;</span>\
+                  </a>\
+                </li>\
+              </ul>\
+            </nav>';
+            $('#pagination').html(pagination_html)
+          } else {
+            $('#msa-data').hide()
+            $('#errors').show().text("No Record is presrnt")
+          }
+        },
+        error: function(error){
+          console.log(error)
+        }
+    });
+  };
+  
+  $(document).on("click",'.page-link', function(e) {
+    var xphref = $(this).attr('xphref');
+    getPageData(xphref);
+  });
+  $( document ).ready(function() {
+    getPageData();
+  });
+</script>
+{% endblock page_js %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block page_title %}KnitContract - Add MSA{% endblock page_title %}
+    
+
+{% block content %}
+    <div class="pagetitle">
+        <h1>Add MSA</h1>
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <div style="display: none;" id="form-submit-result" class="alert alert-dismissible" role="alert">
+                <span id="form-errors"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+                <form id="addMsaFrm" action="{% url 'api-msa-add' %}" method="POST" enctype="multipart/form-data"  >
+                {% csrf_token %}
+                <input type="hidden" name="created_by" value="{{ request.user.id }}" />
+                <div class="col-6">
+                    <label for="{{ form.client.name }}" class="form-label">{{ form.client.label }}</label>
+                    {{ form.client }}
+                    <div 
+                    {% if form.client.errors  %}
+                        class="invalid-feedback show"
+                    {% else %}
+                        class="invalid-feedback"
+                    >
+                    {% endif %}
+                        >
+                        {{ form.client.errors }}
+                    </div>
+                </div>
+                    <div class="col-6 mt-3">
+                        <label for="{{ form.signing_authority.name }}" class="form-label">{{ form.signing_authority.label }}</label>
+                        {{ form.signing_authority }}
+                        <div 
+                        {% if form.signing_authority.errors  %}
+                            class="invalid-feedback show"
+                        {% else %}
+                            class="invalid-feedback"
+                        >
+                        {% endif %}
+                            >
+                            {{ form.signing_authority.errors }}
+                        </div>
+                    </div>
+                    <div class="col-6 mt-3">
+                        <label for="{{ form.signing_date.name }}" class="form-label">{{ form.signing_date.label }}</label>
+                        {{ form.signing_date }}
+                        <div 
+                        {% if form.signing_date.errors  %}
+                            class="invalid-feedback show"
+                        {% else %}
+                            class="invalid-feedback"
+                        >
+                        {% endif %}
+                            >
+                            {{ form.signing_date.errors }}
+                        </div>
+                    </div>
+                    <div class="col-6 mt-3">
+                        <label for="{{ form.ib_signing_authority.name }}" class="form-label">{{ form.ib_signing_authority.label }}</label>
+                        {{ form.ib_signing_authority }}
+                        <div 
+                        {% if form.ib_signing_authority.errors  %}
+                            class="invalid-feedback show"
+                        {% else %}
+                            class="invalid-feedback"
+                        >
+                        {% endif %}
+                            >
+                            {{ form.ib_signing_authority.errors }}
+                        </div>
+                    </div>
+                    <div class="col-6 mt-3">
+                        <label for="{{ form.status.name }}" class="form-label">{{ form.status.label }}</label>
+                        {{ form.status }}
+                        <div 
+                        {% if form.status.errors  %}
+                            class="invalid-feedback show"
+                        {% else %}
+                            class="invalid-feedback"
+                        >
+                        {% endif %}
+                            >
+                            {{ form.status.errors }}
+                        </div>
+                    </div>
+                    <div class="col-6 mt-3">
+                        <label for="{{ form.msa_doc_path.name }}" class="form-label">{{ form.msa_doc_path.label }}</label>
+                        <input class="form-control" type="file" name="{{ form.msa_doc_path.name }}" >
+                        <div 
+                        {% if form.msa_doc_path.errors  %}
+                            class="invalid-feedback show"
+                        {% else %}
+                            class="invalid-feedback"
+                        >
+                        {% endif %}
+                            >
+                            {{ form.msa_doc_path.errors }}
+                        </div>
+                    </div>
+                    <div class="col-12 mt-4">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+          </div>
+    </div>
+{% endblock content %}
+{% block page_js %}
+  <script>
+    $("#addMsaFrm").submit(function(e) {
+      e.preventDefault();
+      var formData = new FormData(this);
+      
+      var successURL = "{% url 'msa-list' %}";
+      var addMsaURL = "{% url 'api-msa-add' %}";
+      $.ajax({
+          type: "POST",
+          url: addMsaURL,
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function(data)
+          {
+            window.location.replace(successURL)
+          },
+          error: function(error){
+            $("#form-submit-result").show().delay(5000).fadeOut();
+            $("#form-submit-result").addClass('alert-danger')
+            parsedResponse = JSON.parse(error.responseText)
+            $("#form-errors").html(parsedResponse.error)
+          }
+      });
+      
+    });
+  </script>      
+{% endblock page_js %}

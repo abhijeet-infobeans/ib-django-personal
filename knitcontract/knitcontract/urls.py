@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from authenticate import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,5 +26,13 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
-    path('company/', include('company.urls'))
-]
+    path('organization/', include('organization.urls')),
+    path('msa/', include('msa.urls')),
+    path('sow/', include('sow.urls')),
+    
+    #REST URLs
+    path('api/organization/', include('organizationREST.urls')),
+    path('api/msa/', include('msaREST.urls')),
+    path('api/sow/', include('sowREST.urls'))
+    
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
