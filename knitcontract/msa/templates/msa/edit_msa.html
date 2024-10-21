@@ -9,6 +9,16 @@
         <div class="card">
             <div class="card-body">
               <h5 class="card-title"></h5>
+              
+              {% if Is_edit_restricted %}
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">Fully Signed!</h4>
+                    <p>Master Service Agreement is "Fully Signed", Any modifications is restricted now!</p>
+                    <hr>
+                    <p>Although you can <a href="#" class="alert-link">Create Version</a> new version.</p>
+                </div>
+              {% endif %}
+
               <div style="display: none;" id="form-submit-result" class="alert alert-dismissible" role="alert">
                 <span id="form-errors"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -148,11 +158,10 @@
           {
             window.location.replace(successURL)
           },
-          error: function(error){
+          error: function(errors){
             $("#form-submit-result").show().delay(5000).fadeOut();
             $("#form-submit-result").addClass('alert-danger')
-            parsedResponse = JSON.parse(error.responseText)
-            $("#form-errors").html(parsedResponse.error)
+            $("#form-errors").html(errors.responseJSON.errors.error[0])
           }
       });
       

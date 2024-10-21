@@ -29,10 +29,12 @@ urlpatterns = [
     path('organization/', include('organization.urls')),
     path('msa/', include('msa.urls')),
     path('sow/', include('sow.urls')),
+    path('approval/', include('document_approval.urls')),
     
     #REST URLs
     path('api/organization/', include('organizationREST.urls')),
     path('api/msa/', include('msaREST.urls')),
-    path('api/sow/', include('sowREST.urls'))
+    path('api/sow/', include('sowREST.urls')),
+    path('api/approval/', include('document_approvalREST.urls'))
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

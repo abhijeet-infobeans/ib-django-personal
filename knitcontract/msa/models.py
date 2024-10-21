@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from contract.models import ContractStatus
+from contract.models import DocumentRevision
 
 # Create your models here.
 class MSA(models.Model):
@@ -16,6 +17,8 @@ class MSA(models.Model):
     ib_signing_authority = models.EmailField(null=False)
     status = models.ForeignKey(ContractStatus, on_delete=models.SET_NULL, null=True)
     msa_doc_path = models.FileField(upload_to='msa_docs', null=False)
+    created_at = models.DateField(auto_now_add=True)
+    current_revision = models.ForeignKey(DocumentRevision, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         verbose_name = "MSA"

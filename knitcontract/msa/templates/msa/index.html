@@ -10,8 +10,8 @@
             <div class="card-body">
               <h5 class="card-title"></h5>
               <p id="errors"></p>
-              <table id="msa-data" class="table table-bordered table-sm">
-                
+              <table style="font-size: 12px;" id="msa-data" class="table table-bordered table-sm">
+                  
               </table>
               <div id="pagination"></div>
             </div>
@@ -32,7 +32,6 @@
         url: listMsaURL,
         success: function(data)
         {
-          console.log(data)
           if (data.count > 0) {
             $('#msa-data').show()
             $('#errors').hide()
@@ -63,10 +62,16 @@
               table_html += '<td>'+ data.results[itm].status +'</td>';
               table_html += '<td>'+ data.results[itm].created_by +'</td>';
               table_html += '<td>\
-                <a target="_blank" href="'+ data.results[itm].msa_doc_path +'" >\
+                <a title="click to view document" target="_blank" href="'+ data.results[itm].msa_doc_path +'" >\
                   <i class="bi bi-file-earmark-pdf"></i></a>\
-                  <a href="'+ edit_url +'" ><i class="bi bi-pencil-square"></i></a>\
-                </td>';
+                  <a title="edit this record" href="'+ edit_url +'" ><i class="bi bi-pencil-square"></i></a>&nbsp;';
+              var is_admin = "{{ request.user.groups.all.0 }}";
+              if(is_admin == 'Admin'){
+                var assign_row = "{% url 'assign-for-approval' 'msa' 1 %}";
+                var assignURL = assign_row.replace(/[^\/]*$/, data.results[itm].id)
+                table_html += '<a title="assign additional approvers" href="'+ assignURL +'" ><i class="bi bi-exposure"></i></a>';
+              }
+              table_html += '</td>';
               table_html += '</tr>';
             }
             table_html += '</tbody>';
@@ -90,7 +95,7 @@
                     <span aria-hidden="true">&laquo;</span>\
                   </a>\
                 </li>';
-                total_pages = Math.ceil(data.count/2);
+                total_pages = Math.ceil(data.count/5);
                 for (let itp = 1; itp <= total_pages; itp++) {
                   pagination_html += '<li class="page-item"><a xphref="'+ itp +'" class="page-link" href="javascript:void(0);">'+ itp +'</a></li>';
                 }

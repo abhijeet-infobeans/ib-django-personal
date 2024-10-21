@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+
+{% block page_title %}KnitContract - My Actionables{% endblock page_title %}
+
+{% block content %}
+    <div class="pagetitle">
+        <h1>My Actionables</h1>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Pending MSA</h5>
+                  <div id="pending_msa_result">
+
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Pending SOW</h5>
+                  <div id="pending_sow_result"></div>
+
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+{% endblock content %}
+
+
+{% block page_js %}
+    <script>
+        var getMSAActionableURL = "{% url 'api-msa-actionables' %}";
+        $( document ).ready(function() {
+          $.ajax({
+            type: "GET",
+            url: getMSAActionableURL,
+            success: function(data){
+              if (data.length >= 1){
+                html_text = ''
+                for(i=0;i<data.length;i++){
+                  html_text += '<div class="accordion" id="accordion_' + data[i].id + '">\
+                    <div class="accordion-item">\
+                      <h2 class="accordion-header" id="heading_' + data[i].id + '">\
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_' + data[i].id + '" aria-expanded="true" aria-controls="collapseOne">\
+                            <span class="badge bg-dark">Dark</span>\
+                            <span style="display: inline-block; margin-left:4px">' + data[i].msa_unq_no +'</span>\
+                        </button>\
+                      </h2>';
+                      var class_text = 'class="accordion-collapse collapse"';
+                      if (i==0) {
+                        var class_text = 'class="accordion-collapse collapse show"';
+                      }
+
+                      html_text += '<div id="collapse_' + data[i].id + '" '+ class_text +' aria-labelledby="heading_' + data[i].id + '" data-bs-parent="#accordionMSA">\
+                        <div class="accordion-body">\
+                          <p class="mt-2"><strong>Create By:</strong> '+ data[i].created_by+'</p>\
+                          <p class="mt-2"><strong>Signing Authority:</strong> '+ data[i].signing_authority+'</p>\
+                          <p class="mt-2"><strong>Created on:</strong> '+ data[i].created_at+'</p>\
+                          <p class="mt-2"><strong>Document:</strong><a target="_blank" href="'+ data[i].msa_doc_path +'" ><i class="bi bi-file-earmark-pdf"></i></a>\</p>\
+                        </div>\
+                      </div>\
+                    </div>\
+                  </div>';
+                }
+                $('#pending_msa_result').html(html_text)
+              }
+            },
+            error: function(error){
+              console.log(error)
+            }
+          });
+        });
+        var getSOWActionableURL = "{% url 'api-sow-actionables' %}";
+        $( document ).ready(function() {
+          $.ajax({
+            type: "GET",
+            url: getSOWActionableURL,
+            success: function(data){
+              console.log(data)
+              if (data.length >= 1){
+                html_text = ''
+                for(i=0;i<data.length;i++){
+                  html_text += '<div class="accordion" id="accordion_sow_' + data[i].id + '">\
+                    <div class="accordion-item">\
+                      <h2 class="accordion-header" id="heading_sow_' + data[i].id + '">\
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_sow_' + data[i].id + '" aria-expanded="true" aria-controls="collapseOne">\
+                            <span class="badge bg-dark">Dark</span>\
+                            <span style="display: inline-block; margin-left:4px">' + data[i].project_name +'</span>\
+                        </button>\
+                      </h2>';
+                      var class_text = 'class="accordion-collapse collapse"';
+                      if (i==0) {
+                        var class_text = 'class="accordion-collapse collapse show"';
+                      }
+
+                      html_text += '<div id="collapse_sow_' + data[i].id + '" '+ class_text +' aria-labelledby="heading_sow_' + data[i].id + '" data-bs-parent="#accordionMSA">\
+                        <div class="accordion-body">\
+                          <p class="mt-2"><strong>Create By:</strong> '+ data[i].created_by+'</p>\
+                          <p class="mt-2"><strong>Created on:</strong> '+ data[i].created_at+'</p>\
+                          <p class="mt-2"><strong>Document:</strong><a target="_blank" href="'+ data[i].sow_doc_path +'" ><i class="bi bi-file-earmark-pdf"></i></a>\</p>\
+                        </div>\
+                      </div>\
+                    </div>\
+                  </div>';
+                }
+                $('#pending_sow_result').html(html_text)
+              }
+            },
+            error: function(error){
+              console.log(error)
+            }
+          });
+        });
+    </script>
+{% endblock page_js %}

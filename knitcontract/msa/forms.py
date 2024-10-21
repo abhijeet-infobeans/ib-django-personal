@@ -1,9 +1,9 @@
 from django import forms
 from .models import MSA
 from django.contrib.auth.models import User, Group
-from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.utils.safestring import mark_safe
+from django.core.exceptions import ValidationError
 
 def validate_document(fieldfile_obj):
         filesize = fieldfile_obj.file.size
@@ -24,6 +24,7 @@ class MSAForm(forms.ModelForm):
             'status': 'Status',
             'msa_doc_path': 'Document'
         }
+    
         widgets = {
             'client':forms.Select(attrs={'class': 'form-select'}),
             'signing_authority':forms.EmailInput(attrs={'class': 'form-control'}),
@@ -47,6 +48,7 @@ class MSAForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             group_name = 'Client'
+            instance = kwargs.get('instance')
             try:
                 group = Group.objects.get(name=group_name)
                 # Filter users by the specific group
@@ -58,4 +60,14 @@ class MSAForm(forms.ModelForm):
                 self.fields['msa_doc_path'].help_text = mark_safe(f'<a target="_blank" href="{self.instance.msa_doc_path.url}" title="{self.instance.msa_doc_path.name}" ><i class="bi bi-file-earmark-pdf"></i></a>')
                 # If you want to make file upload optional during editing, you can remove the "required" attribute
                 self.fields['msa_doc_path'].required = False
+            
+            if instance and str(instance.status) == 'Draft':
+                for field_name, field in self.fields.items():
+                    if isinstance(field.widget, forms.FileField):
+                        # Disable file fields
+                        field.widget.is_hidden = True
+                    elif isinstance(field.widget, forms.Select):
+                        field.widget.attrs['disabled'] = True
+                    else:
+                        field.widget.attrs['readonly'] = True
         

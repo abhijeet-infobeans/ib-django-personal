@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block page_title %}KnitContract - Add Organization{% endblock page_title %}
+    
+
+{% block content %}
+    <div class="pagetitle">
+        <h1>Assign Approvers</h1>
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <p></p>
+              <div style="display: none;" id="form-submit-result" class="alert alert-dismissible" role="alert">
+                <span id="form-errors"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <form id="assignAddFrm" method="POST" >
+                {% csrf_token %}
+                <input type="hidden" name="created_by" value="{{ request.user.id }}" />
+                <div class="col-6">
+                    <label for="{{ form.assigned_to.name }}" class="form-label">{{ form.assigned_to.label }}</label>
+                    <div style="max-height:180px;overflow-y:scroll">
+                      {{ form.assigned_to }}
+                    </div>
+                    <div 
+                    {% if form.assigned_to.errors  %}
+                      class="invalid-feedback show"
+                    {% else %}
+                      class="invalid-feedback"
+                    >
+                    {% endif %}
+                      >
+                      {{ form.assigned_to.errors }}
+                    </div>
+                  </div>
+                  
+                  <div class="col-12 mt-4">
+                    <button class="btn btn-primary" type="submit">Assign</button>
+                  </div>
+                </form>
+            </div>
+          </div>
+    </div>
+{% endblock content %}
+{% block page_js %}
+  <script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    $("#assignAddFrm").submit(function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        if (formData.getAll('assigned_to').length == 0) {
+          $("#form-submit-result").show().delay(5000).fadeOut();
+          $("#form-submit-result").addClass('alert-danger')
+          $("#form-errors").html("Please select at least one user")
+          return false
+        } else {
+          var successURL = "{% url 'msa-list' %}";
+          var assignURL = "{% url 'api-assign-for-approval' request.resolver_match.kwargs.doc_type request.resolver_match.kwargs.pk %}";
+          var created_by = "{{ request.user.id }}"
+          var requestData = {
+            created_by:created_by,
+            assigned_to: formData.getAll('assigned_to').toString()
+          }
+          
+          $.ajax({
+              type: "POST",
+              url: assignURL,
+              data: requestData,
+              dataType: "json",
+              headers: {
+                'X-CSRFToken': csrftoken  // Add CSRF token to the headers
+              },
+              success: function(data)
+              {
+                  //window.location.replace(successURL)
+              },
+              error: function(error){
+                  $("#form-submit-result").show().delay(5000).fadeOut();
+                  $("#form-submit-result").addClass('alert-danger')
+                  parsedResponse = JSON.parse(error)
+                  $("#form-errors").html(parsedResponse)
+              }
+          });
+        }
+    });
+  </script>      
+{% endblock page_js %}

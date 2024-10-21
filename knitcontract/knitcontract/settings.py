@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     'msa',
     'sow',
     'auditlog',
+    'document_approval',
     
     'organizationREST',
     'msaREST',
     'sowREST',
-    'rest_framework'
+    'rest_framework',
+    'document_approvalREST',
 ]
 
 MIDDLEWARE = [

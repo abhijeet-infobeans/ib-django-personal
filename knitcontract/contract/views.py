@@ -9,3 +9,9 @@ class DashboardView(LoginRequiredMixin,View):
     redirect_field_name = 'redirect_to'
     def get(self, request, *args, **kwargs):
         return render(request, 'contract/dashboard.html')
+    
+class MyActionableView(LoginRequiredMixin,View):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+    def get(self, request, *args, **kwargs):
+        return render(request, 'contract/myactionables.html')

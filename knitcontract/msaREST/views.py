@@ -10,15 +10,31 @@ from rest_framework.pagination import PageNumberPagination
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from msa.models import MSA
-from contract.models import ContractStatus
+from contract.models import ContractStatus, DocumentRevision
 from datetime import datetime
 from msa.forms import validate_document
 from random import randint, randrange
 from . serializers import MSAListSerializer, MSASerializer
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+from django.contrib.contenttypes.models import ContentType
 
 class ContractPagination(PageNumberPagination):
-    page_size = 2  # Number of records per page
+    page_size = 5  # Number of records per page
+    
+def getActionItemsByGroup(id, group):
+        # get group ID by Name
+        match group:
+            case 'Client':
+                status_id = ContractStatus.objects.values_list('id', flat=True).filter(status='Awaiting Client Signature')
+                result = MSA.objects.filter(client=id, status__in=status_id)
+            case 'Department Heads':
+                status_id = ContractStatus.objects.values_list('id', flat=True).filter(Q(status='Awaiting Client Signature') | Q(status='Draft'))
+                result = MSA.objects.filter(status__in=status_id)
+            case _:
+                result = None
+        
+        return result
 
 class MSACreateView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -86,6 +102,21 @@ class MSACreateView(APIView):
             msa_doc_path=msa_doc_path
         )
         master_agreement.save()
+        master_agreement_obj = master_agreement
+        
+        # Add entry in Revision table
+        content_type = ContentType.objects.get_for_model(MSA)
+        new_rev_num = 1
+        revision_obj = DocumentRevision.objects.create(
+            revision_number = new_rev_num,
+            object_id = master_agreement_obj.id,
+            file_path = master_agreement_obj.msa_doc_path,
+            comment = 'System generated',
+            content_type_id = content_type.id,
+            revision_by_id = master_agreement_obj.created_by_id
+        )
+        MSA.objects.filter(pk=master_agreement_obj.id).update(current_revision_id=revision_obj.id)
+        
         return Response({'message': 'Master agreement saved successfully.'}, status=rest_status.HTTP_201_CREATED)
     
 
@@ -107,11 +138,50 @@ class MSAEditView(APIView):
     def put(self, request, pk):
         msa_obj = get_object_or_404(MSA, pk=pk)
         serializer = MSASerializer(msa_obj, data=request.data, partial=True)
-
+        
         if serializer.is_valid():
-            serializer.save()
+            updated_obj = serializer.save()
+            # check if file got replaced with new file
+            if request.data['msa_doc_path']:
+                # Check if entry is present on revision table if not please add one
+                content_type = ContentType.objects.get_for_model(MSA)
+                last_revision = DocumentRevision.objects.filter(object_id = updated_obj.id, content_type_id = content_type).order_by('-created_at').values()[:1]
+                
+                new_rev_num = 1
+                if last_revision:
+                    new_rev_num = int(last_revision[0]['revision_number'])+1
+                    
+                revision_obj = DocumentRevision.objects.create(
+                    revision_number = new_rev_num,
+                    object_id = updated_obj.id,
+                    file_path = updated_obj.msa_doc_path,
+                    comment = 'System generated',
+                    content_type_id = content_type.id,
+                    revision_by_id = updated_obj.created_by_id
+                )
+                MSA.objects.filter(pk=updated_obj.id).update(current_revision_id=revision_obj.id)
+                
+                            
             return Response({'success': True, 'message': 'Form updated successfully!'}, status=rest_status.HTTP_200_OK)
         else:
             return Response({'success': False, 'errors': serializer.errors}, status=rest_status.HTTP_400_BAD_REQUEST)
+        
+        
+class MSAGetActionables(APIView):
+     
+    def get(self, request, *args, **kwargs):
+        # get user belogs to which group
+        current_user_id = request.user.pk
+        current_user_group = list(request.user.groups.values_list('name'))
+        
+        if (any('Client' in i for i in current_user_group)):
+            actionable_records = getActionItemsByGroup(current_user_id, 'Client')
+        if (any('Department Heads' in i for i in current_user_group)):
+            actionable_records = getActionItemsByGroup(current_user_id, 'Department Heads')
+        
+        #actionable_records = 
+        serializer = MSAListSerializer(actionable_records, many=True)
+        return Response(serializer.data)
+        
     
 

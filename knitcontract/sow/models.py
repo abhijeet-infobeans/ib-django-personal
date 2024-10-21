@@ -7,6 +7,7 @@ from django.db.models.signals import post_save
 from django.contrib.contenttypes.models import ContentType
 from auditlog.models import AuditLog
 from django.utils import timezone
+from contract.models import DocumentRevision
 
 # Create your models here.
 class SOWType(models.Model):
@@ -56,6 +57,7 @@ class SOW(models.Model):
     )
     next_due_renewal = models.DateField()
     sow_doc_path = models.FileField(upload_to='sow_docs', null=False)
+    current_revision = models.ForeignKey(DocumentRevision, on_delete=models.SET_NULL, null=True)
     
 
     class Meta:
