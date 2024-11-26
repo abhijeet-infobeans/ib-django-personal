@@ -14,4 +14,9 @@ class MyActionableView(LoginRequiredMixin,View):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
     def get(self, request, *args, **kwargs):
-        return render(request, 'contract/myactionables.html')
+        user_in_client_group = request.user.groups.filter(name='Client').exists()
+        # Pass additional context to the template
+        context = {
+            'user_in_client_group': user_in_client_group,
+        }
+        return render(request, 'contract/myactionables.html', context)

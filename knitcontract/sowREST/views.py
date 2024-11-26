@@ -12,25 +12,21 @@ from .serializers import SOWListSerializer
 from rest_framework.parsers import FormParser, MultiPartParser
 from django.shortcuts import get_object_or_404
 from contract.models import ContractStatus, DocumentRevision
+from document_approval.models import DocumentApproval
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
+import json
 
 class ContractPagination(PageNumberPagination):
     page_size = 2  # Number of records per page
    
-def getActionItemsByGroup(id, group):
+def getActionItemsByGroup(id, group=''):
         # get group ID by Name
         match group:
             case 'Client':
                 status_id = ContractStatus.objects.values_list('id', flat=True).filter(status='Awaiting Client Signature')
                 result = SOW.objects.filter(client=id, status__in=status_id)
-            case 'Department Heads':
-                status_id = ContractStatus.objects.values_list('id', flat=True).filter(Q(status='Awaiting Client Signature') | Q(status='Draft') | Q(status='InfoBeans Signed'))
-                result = SOW.objects.filter(status__in=status_id)
-            case _:
-                result = None
-        
-        return result    
+        return result
     
 class SOWCreateAPIView(CreateAPIView):
     queryset = SOW.objects.all()
@@ -59,7 +55,21 @@ class SOWCreateAPIView(CreateAPIView):
     
 class SOWList(APIView):
     def get(self, request, format=None):
-        msas = SOW.objects.all()
+        msas = SOW.objects.all().order_by('-id')
+        client = request.GET.get('fc')
+        status = request.GET.get('fs')
+        search_query = request.GET.get('sq')
+        
+        if search_query:
+            msas = msas.filter(
+                Q(project_name__icontains=search_query)
+                )
+        
+        # Apply filters dynamically
+        if client:
+            msas = msas.filter(client__id__icontains=client)
+        if status:
+            msas = msas.filter(status__id__icontains=status)
         paginator = ContractPagination()
         paginated_msas = paginator.paginate_queryset(msas, request)
         serializer = SOWListSerializer(paginated_msas, many=True)
@@ -105,11 +115,22 @@ class SOWGetActionables(APIView):
         
         if (any('Client' in i for i in current_user_group)):
             actionable_records = getActionItemsByGroup(current_user_id, 'Client')
-        if (any('Department Heads' in i for i in current_user_group)):
-            actionable_records = getActionItemsByGroup(current_user_id, 'Department Heads')
         
-        #actionable_records = 
         serializer = SOWListSerializer(actionable_records, many=True)
         return Response(serializer.data)
+    
+class SOWStatusUpdate(APIView):
+    def patch(self, request, *args, **kwargs):
+        patch_data = request.data.dict()
+        json_str = list(patch_data.keys())[0]
+        parsed_data = json.loads(json_str)
+        usp_i = parsed_data.get("usp_i")
+        usp_a = parsed_data.get("usp_a")
+        actionable_records = SOW.objects.get(pk=usp_i)
+        print(actionable_records)
+        if (usp_a == "a"):
+            actionable_records.status_id = ContractStatus.objects.values_list('id', flat=True).filter(status = "Fully Signed")
+            actionable_records.save()
+        return Response({'success': True, 'message': 'Form updated successfully!'}, status=rest_status.HTTP_200_OK)
         
     

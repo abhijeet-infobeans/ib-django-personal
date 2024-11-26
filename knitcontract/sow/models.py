@@ -73,10 +73,10 @@ def log_sow_activity(sender, instance, created, **kwargs):
     content_type = ContentType.objects.get_for_model(instance)
     if created:
         action = 'Created'
-        log_message = f"A new sow {instance.project_name} was created for client {instance.client.username} with MSA {instance.msa.msa_unq_no}."
+        log_message = f"A new Work Order {instance.id} was created for client {instance.client.username} with MSA {instance.project_name}."
     else:
         action = 'Updated'
-        log_message = f"Contract  {instance.project_name} for client {instance.client.username} with MSA {instance.msa.msa_unq_no} was updated."
+        log_message = f"Work Order  {instance.id} for client {instance.client.username} with SOW {instance.project_name} was updated."
 
     # Create a log entry for this action
     AuditLog.objects.create(

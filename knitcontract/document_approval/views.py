@@ -5,6 +5,8 @@ from .forms import DocumentApprovalForm
 from django.shortcuts import get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+from sow.models import SOW
+from msa.models import MSA
 
 # Create your views here.
 
@@ -31,3 +33,17 @@ class DocumentApprovalCreateView(CreateView):
         # Preselect the checkboxes with the assigned users
         form.fields['assigned_to'].initial = assigned_users.distinct()
         return form
+    
+    def get_context_data(self, **kwargs):
+        # Get the existing context from the base implementation
+        context = super().get_context_data(**kwargs)
+        entity_details = []
+        if (self.kwargs['doc_type'] == 'sow'):
+            entity_details = SOW.objects.get(pk=self.kwargs['pk'])
+            context['doc_type'] = 'sow'
+        if (self.kwargs['doc_type'] == 'msa'):
+            entity_details = MSA.objects.get(pk=self.kwargs['pk'])
+            context['doc_type'] = 'msa'
+        # Add additional context data
+        context['entity_details'] = entity_details
+        return context

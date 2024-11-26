@@ -24,11 +24,10 @@ class DocumentApproval(models.Model):
         default=ApprovalStatus.Pending,
     )
     
-
     class Meta:
         verbose_name = "DocumentApproval"
         verbose_name_plural = "DocumentApprovals"
         unique_together = ('object_id', 'content_type', 'assigned_to')
 
     def __str__(self):
-        return self.id
+        return str(self.id)

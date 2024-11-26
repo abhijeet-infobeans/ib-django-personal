@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/organization/', include('organizationREST.urls')),
     path('api/msa/', include('msaREST.urls')),
     path('api/sow/', include('sowREST.urls')),
-    path('api/approval/', include('document_approvalREST.urls'))
+    path('api/approval/', include('document_approvalREST.urls')),
+    path('api/contract-status/', include('contractREST.urls'))
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

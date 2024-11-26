@@ -8,6 +8,7 @@ class SOWListSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source='status.status')
     created_by = serializers.CharField(source='created_by.get_full_name')
     sow_doc_path = serializers.FileField()
+    client_uname = serializers.CharField(source='client.username')
     
     class Meta:
         model = SOW

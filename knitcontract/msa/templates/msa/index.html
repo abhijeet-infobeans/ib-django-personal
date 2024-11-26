@@ -10,6 +10,20 @@
             <div class="card-body">
               <h5 class="card-title"></h5>
               <p id="errors"></p>
+              <form>
+                <div style="font-size: 12px;" class="row mb-3">
+                  <div class="col-md-5">
+                    {% include 'msa/search.html' %}
+                  </div>
+                  <div style="border-left: 1px solid #e2e3e1;" class="col-md-1">
+                      &nbsp;
+                  </div>
+                  <div class="col-md-6">
+                    {% include 'msa/filters.html' %}
+                  </div>
+                </div>
+              </form>
+              <hr/>
               <table style="font-size: 12px;" id="msa-data" class="table table-bordered table-sm">
                   
               </table>
@@ -20,11 +34,23 @@
 {% endblock content %}
 {% block page_js %}
 <script>
-  function getPageData(page_num=1){
+  function getPageData(page_num=1, filters = '', search_query=''){
     if (page_num > 1) {
       var listMsaURL = "{% url 'api-msa-list' %}"+"?page="+page_num;
+      if (filters != '') {
+        listMsaURL = listMsaURL+"&"+filters
+      }
+      if (search_query != "") {
+        listMsaURL = listMsaURL+"?"+search_query
+      }
     }else{
       var listMsaURL = "{% url 'api-msa-list' %}";
+      if (filters != '') {
+        listMsaURL = listMsaURL+"?"+filters
+      }
+      if (search_query != "") {
+        listMsaURL = listMsaURL+"?"+search_query
+      }
     }
     
     $.ajax({
@@ -124,6 +150,99 @@
   });
   $( document ).ready(function() {
     getPageData();
+    // get list of all the clients
+    var url_get_client_users = "{% url 'api-get-all-client-users' %}";
+    $.ajax({
+      type: "GET",
+      url: url_get_client_users,
+      success: function(data){
+        if(data.message.length > 0){
+          for (let step = 0; step < data.message.length; step++) {
+            optionValue = data.message[step].id
+            optionText = data.message[step].username
+            let optionHTML = `
+            <option value="${optionValue}"> 
+                ${optionText} 
+            </option>`;
+            $('#ft-msa-client').append(optionHTML);
+          }          
+        }
+      },
+      error: function(error){
+        console.log(error)
+      }
+    });
+
+    // get list of all the status
+    var url_get_status = "{% url 'api-get-all-contract-status' %}";
+    $.ajax({
+      type: "GET",
+      url: url_get_status,
+      success: function(data){
+        if(data.message.length > 0){
+          for (let step = 0; step < data.message.length; step++) {
+            optionValue = data.message[step].id
+            optionText = data.message[step].status
+            let optionHTML = `
+            <option value="${optionValue}"> 
+                ${optionText} 
+            </option>`;
+            $('#ft-msa-status').append(optionHTML);
+          }          
+        }
+      },
+      error: function(error){
+        console.log(error)
+      }
+    });
   });
+
+  function reset_filter_fields() {
+    $("#ft-msa-status").prop('selectedIndex', 0);
+    $("#ft-msa-client").prop('selectedIndex', 0);
+  }
+
+  function reset_search_fields() {
+    $("#sr-msa-text").prop('value', '');
+  }
+
+  //Filter code
+  $(document).on("click",'#ft-btn', function(e) {
+    selectted_status = $('#ft-msa-status').val()
+    selectted_client = $('#ft-msa-client').val()
+    filters = ''
+    if (selectted_status > 0 || selectted_client > 0) {
+      if (selectted_status > 0){
+        filters = filters+'fs='+selectted_status
+      }
+      if (selectted_client > 0){
+        filters = filters+'&fc='+selectted_client
+      }
+      reset_search_fields()
+      getPageData(1,filters);
+    }
+  });
+
+  // search code
+  $(document).on("click",'#sq-btn', function(e) {
+    query_str = $('#sr-msa-text').val()
+    search_query = ''
+    if (query_str != '') {
+      reset_filter_fields()
+      search_query = '&sq='+query_str
+      getPageData(1,'', search_query);
+    }
+  });
+
+  $(document).on("click",'#reset-ft-btn', function(e) {
+    reset_filter_fields()
+    getPageData(1);
+  });
+
+  $(document).on("click",'#reset-sq-btn', function(e) {
+    reset_search_fields()
+    getPageData(1);
+  });
+  
 </script>
 {% endblock page_js %}

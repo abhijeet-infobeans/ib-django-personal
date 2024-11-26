@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'sowREST',
     'rest_framework',
     'document_approvalREST',
+    'contractREST',
 ]
 
 MIDDLEWARE = [

@@ -29,46 +29,187 @@
             </div>
         </div>
     </div>
-   
+    <div class="modal fade" id="act_edit_modal" tabindex="-1" aria-labelledby="act_edit_modalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="act_edit_modalLabel">Model</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>You may add optional comment by mentioning reason for your decision.</p>
+            <form>
+              {% csrf_token %}
+              <input type="hidden" class="form-control" name="object_id" >
+              <input type="hidden" class="form-control" value="{{request.user.id}}" id="assign_to" name="assign_to">
+              <div class="mb-3">
+                <label for="message-text" class="col-form-label">Comment:</label>
+                <textarea name="message-text" class="form-control" id="message-text"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" id="msa-st-up" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock content %}
 
 
 {% block page_js %}
     <script>
-        var getMSAActionableURL = "{% url 'api-msa-actionables' %}";
+      const act_edit_modal = document.getElementById('act_edit_modal')
+      let current_user = '{{request.user.username}}';
+      let update_status_url = '';
+      let update_status_params = {};
+      let update_entity_name = '';
+      if (act_edit_modal) {
+        act_edit_modal.addEventListener('show.bs.modal', event => {
+          // Button that triggered the modal
+          const button = event.relatedTarget
+          // Extract info from data-bs-* attributes
+          const recipient = button.getAttribute('data-bs-whatever')
+          if (recipient != '') {
+            infoArr = recipient.split('_!')
+          }
+          
+          // If necessary, you could initiate an Ajax request here
+          // and then do the updating in a callback.
+
+          // Update the modal's content.
+          const modalTitle = act_edit_modal.querySelector('.modal-title')
+          const modalBodyInput = act_edit_modal.querySelector('input[name="object_id"]')
+          const modalBodyAssignTo = act_edit_modal.querySelector('input[name="assign_to"]')
+          update_status_params['usp_i'] = infoArr[1]
+          if (infoArr.length == 4) {
+            update_status_params['usp_ent_name'] = infoArr[3]
+          } 
+          
+          update_status_url = "{% url 'api-msa-doc-update-status' %}";
+          if (infoArr[0] == 'A') {
+            update_status_params['usp_a'] = 'a'
+            modalTitle.innerHTML = "You are about to change status of <strong class='text-warning'>"+infoArr[2]+"</strong> to <strong class='text-success'>Approved</strong>"
+          }
+          if (infoArr[0] == 'R') {
+            update_status_params['usp_a'] = 'r'
+            modalTitle.innerHTML = "You are about to change status of <strong class='text-warning'>"+infoArr[2]+"</strong> to <strong class='text-danger'>Reject</strong>"
+          }
+          modalBodyInput.value = infoArr[1]
+        })
+      }
+        var user_in_client_group = "{{user_in_client_group}}"
+        if (user_in_client_group == "True") {
+          var getMSAActionableURL = "{% url 'api-msa-actionables' %}";
+          var getSOWActionableURL = "{% url 'api-sow-actionables' %}";
+        } else {
+          var getMSAActionableURL = "{% url 'api-get-doc-approval' %}";
+          var getSOWActionableURL = "{% url 'api-get-sow-doc-approval' %}";
+        }
+        function generateHtmlStr(data,i,extra_info){
+          html_text = ''
+          html_text += '<div class="accordion" id="accordion_' + data.id + '">\
+            <div class="accordion-item">\
+              <h2 class="accordion-header" id="heading_' + data.id + '">\
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_' + data.id + '" aria-expanded="true" aria-controls="collapseOne">\
+                    <span class="badge bg-warning">New</span>\
+                    <span style="display: inline-block; margin-left:4px">' + data.msa_unq_no +'</span>\
+                </button>\
+              </h2>';
+              var class_text = 'class="accordion-collapse collapse"';
+              if (i==0) {
+                var class_text = 'class="accordion-collapse collapse show"';
+              }
+
+              html_text += '<div id="collapse_' + data.id + '" '+ class_text +' aria-labelledby="heading_' + data.id + '" data-bs-parent="#accordionMSA">\
+                <div class="accordion-body h10">\
+                  <p class="mt-2"><strong>Create By:</strong> '+ data.created_by+'</p>\
+                  <p class="mt-2"><strong>Signing Authority:</strong> '+ data.signing_authority+'</p>\
+                  <p class="mt-2"><strong>Created on:</strong> '+ data.created_at+'</p>\
+                  <p class="mt-2"><strong>Document Status:</strong> '+ data.status+'</p>';
+                  if (user_in_client_group == "False") {
+                    html_text += '<p class="mt-2"><strong>Approval Status:</strong> '+ extra_info[i].decision+'</p>';
+                  }
+                  html_text += '<p class="mt-2"><strong>Document:</strong><a target="_blank" href="'+ data.msa_doc_path +'" ><i class="bi bi-file-earmark-pdf"></i></a>\</p>';
+                  
+                  if (current_user != data.client) {
+                    html_text += '<div>\
+                      <button data-bs-toggle="modal" data-bs-target="#act_edit_modal" data-bs-whatever="A_!'+ extra_info[i].id +'_!'+data.msa_unq_no+'" type="button" class="btn btn-outline-success btn-sm action_xsm_button">Approve</button>\
+                      <button data-bs-toggle="modal" data-bs-target="#act_edit_modal" data-bs-whatever="R_!'+ extra_info[i].id +'_!'+data.msa_unq_no+'" type="button" class="btn btn-outline-warning btn-sm action_xsm_button">Reject</button>\
+                    </div><hr>';
+                  } else {
+                    html_text += '<hr><div>\
+                      <button data-bs-whatever="A_!'+ extra_info[i].id +'_!'+data.msa_unq_no+'" type="button" class="app-record btn btn-outline-success">Approve Record</button>\
+                    </div>';
+                  }
+                html_text += '</div>\
+              </div>\
+            </div>\
+          </div>';
+          return html_text
+        }
+
+        function generateHtmlStrForSOW(data,i,extra_info){
+          html_text = ''
+          html_text += '<div class="accordion" id="accordion_sow_' + data.id + '">\
+            <div class="accordion-item">\
+              <h2 class="accordion-header" id="heading_sow_' + data.id + '">\
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_sow_' + data.id + '" aria-expanded="true" aria-controls="collapseOne">\
+                    <span class="badge bg-success">New</span>\
+                    <span style="display: inline-block; margin-left:4px">' + data.project_name +'</span>\
+                </button>\
+              </h2>';
+              var class_text = 'class="accordion-collapse collapse"';
+              if (i==0) {
+                var class_text = 'class="accordion-collapse collapse show"';
+              }
+
+              html_text += '<div id="collapse_sow_' + data.id + '" '+ class_text +' aria-labelledby="heading_sow_' + data.id + '" data-bs-parent="#accordionSOW">\
+                <div class="accordion-body h10">\
+                  <p class="mt-2"><strong>Create By:</strong> '+ data.created_by+'</p>\
+                  <p class="mt-2"><strong>Created on:</strong> '+ data.created_at+'</p>\
+                  <p class="mt-2"><strong>Document Status:</strong> '+ data.status+'</p>';
+                  if (user_in_client_group == "False") {
+                    html_text += '<p class="mt-2"><strong>Approval Status:</strong> '+ extra_info[i].decision+'</p>';
+                  }
+                  html_text += '<p class="mt-2"><strong>Document:</strong><a target="_blank" href="'+ data.sow_doc_path +'" ><i class="bi bi-file-earmark-pdf"></i></a>\</p>';
+                  if (current_user != data.client_uname) {
+                    html_text += '<div>\
+                      <button data-bs-toggle="modal" data-bs-target="#act_edit_modal" data-bs-whatever="A_!'+ extra_info[i].id +'_!'+data.project_name+'_!sow" type="button" class="btn btn-outline-success btn-sm action_xsm_button">Approve</button>\
+                      <button data-bs-toggle="modal" data-bs-target="#act_edit_modal" data-bs-whatever="R_!'+ extra_info[i].id +'_!'+data.project_name+'_!sow" type="button" class="btn btn-outline-warning btn-sm action_xsm_button">Reject</button>\
+                    </div>\<hr>';
+                  } else {
+                    html_text += '<hr><div>\
+                      <button data-bs-whatever="A_!'+ extra_info[i].id +'_!'+data.project_name+'_!sow" type="button" class="app-record btn btn-outline-success">Approve Record</button>\
+                    </div>';
+                  }
+                html_text += '</div>\
+              </div>\
+            </div>\
+          </div>';
+          return html_text
+        }
+
+        
         $( document ).ready(function() {
+          // Get MSA actionable list
           $.ajax({
             type: "GET",
             url: getMSAActionableURL,
             success: function(data){
               if (data.length >= 1){
                 html_text = ''
-                for(i=0;i<data.length;i++){
-                  html_text += '<div class="accordion" id="accordion_' + data[i].id + '">\
-                    <div class="accordion-item">\
-                      <h2 class="accordion-header" id="heading_' + data[i].id + '">\
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_' + data[i].id + '" aria-expanded="true" aria-controls="collapseOne">\
-                            <span class="badge bg-dark">Dark</span>\
-                            <span style="display: inline-block; margin-left:4px">' + data[i].msa_unq_no +'</span>\
-                        </button>\
-                      </h2>';
-                      var class_text = 'class="accordion-collapse collapse"';
-                      if (i==0) {
-                        var class_text = 'class="accordion-collapse collapse show"';
-                      }
-
-                      html_text += '<div id="collapse_' + data[i].id + '" '+ class_text +' aria-labelledby="heading_' + data[i].id + '" data-bs-parent="#accordionMSA">\
-                        <div class="accordion-body">\
-                          <p class="mt-2"><strong>Create By:</strong> '+ data[i].created_by+'</p>\
-                          <p class="mt-2"><strong>Signing Authority:</strong> '+ data[i].signing_authority+'</p>\
-                          <p class="mt-2"><strong>Created on:</strong> '+ data[i].created_at+'</p>\
-                          <p class="mt-2"><strong>Document:</strong><a target="_blank" href="'+ data[i].msa_doc_path +'" ><i class="bi bi-file-earmark-pdf"></i></a>\</p>\
-                        </div>\
-                      </div>\
-                    </div>\
-                  </div>';
+                for(i=0; i<data.length; i++){
+                  if (user_in_client_group == "True") {
+                    html_text += generateHtmlStr(data[i], i, data)
+                  } else {
+                    html_text += generateHtmlStr(data[i].related_object, i, data)
+                  }
                 }
                 $('#pending_msa_result').html(html_text)
+              } else {
+                $('#pending_msa_result').html('<p><small><em>No Master Agreement for any action!</em></small></p>')
               }
             },
             error: function(error){
@@ -76,40 +217,93 @@
             }
           });
         });
-        var getSOWActionableURL = "{% url 'api-sow-actionables' %}";
+
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
+      
+      const csrftoken = getCookie('csrftoken');
+        // Modify status of MSA/Sow record from my actionable list
+        $('#msa-st-up').click(function(){
+          update_status_params['usp_c'] = $('#message-text').val()
+          $.ajax({
+            type: "PATCH",
+            url: update_status_url,
+            headers: {
+              'X-CSRFToken': csrftoken  // Add CSRF token to the headers
+            },
+            data: JSON.stringify( update_status_params ),
+            success: function(data){
+              location.reload()
+            },
+            error: function(error){
+              console.log(error)
+            }
+          });
+        });
+
+        // Update the record status, where document is assigned to client(big button)
+        $('body').on('click', '.app-record', function() {
+          const recipient = $(this).attr('data-bs-whatever')
+          let update_record_status_url = "{% url 'api-mas-status-update' %}";
+          
+          if (recipient != '') {
+            infoArr = recipient.split('_!')
+            update_status_params['usp_i'] = infoArr[1]
+            update_status_params['usp_a'] = "a"
+            console.log(infoArr)
+            if (infoArr.length == 4 && infoArr[3] == 'sow') {
+              update_status_params['usp_ent_name'] = infoArr[3]
+              update_record_status_url = "{% url 'api-sow-status-update' %}";
+            }
+            
+            $.ajax({
+              type: "PATCH",
+              url: update_record_status_url,
+              data: JSON.stringify( update_status_params ),
+              headers: {
+                'X-CSRFToken': csrftoken  // Add CSRF token to the headers
+              },
+              success: function(data){
+                location.reload()
+              },
+              error: function(error){
+                console.log(error)
+              }
+            });
+          }
+        });
+
+        
         $( document ).ready(function() {
           $.ajax({
             type: "GET",
             url: getSOWActionableURL,
             success: function(data){
-              console.log(data)
               if (data.length >= 1){
                 html_text = ''
                 for(i=0;i<data.length;i++){
-                  html_text += '<div class="accordion" id="accordion_sow_' + data[i].id + '">\
-                    <div class="accordion-item">\
-                      <h2 class="accordion-header" id="heading_sow_' + data[i].id + '">\
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_sow_' + data[i].id + '" aria-expanded="true" aria-controls="collapseOne">\
-                            <span class="badge bg-dark">Dark</span>\
-                            <span style="display: inline-block; margin-left:4px">' + data[i].project_name +'</span>\
-                        </button>\
-                      </h2>';
-                      var class_text = 'class="accordion-collapse collapse"';
-                      if (i==0) {
-                        var class_text = 'class="accordion-collapse collapse show"';
-                      }
-
-                      html_text += '<div id="collapse_sow_' + data[i].id + '" '+ class_text +' aria-labelledby="heading_sow_' + data[i].id + '" data-bs-parent="#accordionMSA">\
-                        <div class="accordion-body">\
-                          <p class="mt-2"><strong>Create By:</strong> '+ data[i].created_by+'</p>\
-                          <p class="mt-2"><strong>Created on:</strong> '+ data[i].created_at+'</p>\
-                          <p class="mt-2"><strong>Document:</strong><a target="_blank" href="'+ data[i].sow_doc_path +'" ><i class="bi bi-file-earmark-pdf"></i></a>\</p>\
-                        </div>\
-                      </div>\
-                    </div>\
-                  </div>';
+                  if (user_in_client_group == "True") {
+                    html_text += generateHtmlStrForSOW(data[i], i, data)
+                  } else {
+                    html_text += generateHtmlStrForSOW(data[i].related_object, i, data)
+                  }
                 }
                 $('#pending_sow_result').html(html_text)
+              } else {
+                $('#pending_sow_result').html('<p><small><em>No Work Statement for any action!</em></small></p>')
               }
             },
             error: function(error){

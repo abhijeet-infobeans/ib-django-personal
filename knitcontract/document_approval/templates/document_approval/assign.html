@@ -5,11 +5,19 @@
 
 {% block content %}
     <div class="pagetitle">
-        <h1>Assign Approvers</h1>
+        
+        {% if doc_type == 'sow' %}
+          <h1>Assign Approvers for Work Statement "{{ entity_details.project_name }}"</h1>
+        {% endif %}
+        {% if doc_type == 'msa' %}
+          <h1>Assign Approvers for Master Agreement "{{ entity_details.msa_unq_no }}"</h1>
+        {% endif %}
+        
         <div class="card">
             <div class="card-body">
               <h5 class="card-title"></h5>
-              <p></p>
+              <p class="h10">You can assign multiple approvers, the current status of this document is <strong>{{ entity_details.status }}</strong></p>
+              <hr>
               <div style="display: none;" id="form-submit-result" class="alert alert-dismissible" role="alert">
                 <span id="form-errors"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -88,7 +96,9 @@
               },
               success: function(data)
               {
-                  //window.location.replace(successURL)
+                $("#form-submit-result").show().delay(5000).fadeOut();
+                $("#form-submit-result").addClass('alert-success')
+                $("#form-errors").html('Approver/s has been assigned successfully.')
               },
               error: function(error){
                   $("#form-submit-result").show().delay(5000).fadeOut();
